@@ -20,6 +20,11 @@ The repo is setup with folders:
 - `xlit_s2s_nmt` - adaptation of the Tensorflow Seq2Seq NMT tutorial scripts to work for the task of named entity transliteration
 - `xlit_t2t` - adaptation of Tensor2Tensor to work for the task of named entity transliteration
 
+In addition, a [Dockerfile](Dockerfile) is provided to build a container to do the same.
+See [Docker usage](docker) for this parallel pipeline. Note that the Dockerfiles are provided
+for gpu and cpu, along with instructions for using with Singularity (given a shared cluster
+resource).
+
 # Replicating Tensorflow experimental results
 
 ## First time setup
