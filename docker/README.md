@@ -16,16 +16,10 @@ docker build -t vanessa/netransliteration-coling2018-cpu -f docker/Dockerfile .
 docker build -t vanessa/netransliteration-coling2018-gpu -f docker/Dockerfile.gpu .
 ```
 
-## Versions
-
- - tensorflow: 1.5.0
- - python 3.5.2
-
-
 # Usage (shell)
 
 ```bash
-docker run -it --name ntc-cpu vanessa/netransliteration-coling2018-cpu bash
+docker run -it --rm vanessa/netransliteration-coling2018-cpu bash
 ```
 
 ## Training and Testing
@@ -66,5 +60,60 @@ wd_japanese_16
 ```
 /bin/bash /code/scripts/train.sh /code/data/wd_arabic /code/models/arabic_t2t_1 t2t
 ```
+
+## Debugging
+
+With the following versions:
+
+
+ - tensorflow: 1.4.1
+ - tensor2tensor: 1.7.0
+ - python: 3.5.2
+
+```bash
+root@97ea517ebf53:/code/scripts# /bin/bash /code/scripts/train.sh /code/data/wd_arabic /code/models/arabic_t2t_1 t2t
+Training with tensor2tensor
+/code:
+/usr/local/lib/python3.5/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Traceback (most recent call last):
+  File "../xlit_t2t/app.py", line 32, in <module>
+    from xlit_t2t.g2p import G2PModel
+  File "/code/xlit_t2t/__init__.py", line 22, in <module>
+    from xlit_t2t import g2p
+  File "/code/xlit_t2t/g2p.py", line 28, in <module>
+    from xlit_t2t import g2p_trainer_utils
+  File "/code/xlit_t2t/g2p_trainer_utils.py", line 27, in <module>
+    from tensor2tensor.utils import input_fn_builder
+ImportError: cannot import name 'input_fn_builder'
+```
+
+The error seems to be for tensor2tensor > 1.3.2 (see [issue here](https://github.com/cmusphinx/g2p-seq2seq/issues/107#issuecomment-379718035))
+
+ - tensorflow: 1.4.1
+ - tensor2tensor: 1.3.2
+ - python: 3.5.2
+
+```bash
+root@97ea517ebf53:/code/scripts# /bin/bash /code/scripts/train.sh /code/data/wd_arabic /code/models/arabic_t2t_1 t2t
+Training with tensor2tensor
+/code:
+/usr/local/lib/python3.5/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Traceback (most recent call last):
+  File "../xlit_t2t/app.py", line 137, in <module>
+    tf.app.run()
+  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/platform/app.py", line 48, in run
+    _sys.exit(main(_sys.argv[:1] + flags_passthrough))
+  File "../xlit_t2t/app.py", line 112, in main
+    params = Params(FLAGS.model_dir, file_path, flags=FLAGS)
+  File "/code/xlit_t2t/params.py", line 46, in __init__
+    self.train_steps = len(open(data_path).readlines()) * flags.max_epochs
+  File "/usr/lib/python3.5/encodings/ascii.py", line 26, in decode
+    return codecs.ascii_decode(input, self.errors)[0]
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xd9 in position 8: ordinal not in range(128)
+```
+
+This is likely an issue with the format / data type of an input file. 
 
 **Stopped here, multiple errors and still trying to debug**
